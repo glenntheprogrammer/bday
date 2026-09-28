@@ -644,6 +644,17 @@
     pointer-events: auto;
   }
 
+  @media (max-height: 560px) {
+    .ask {
+      top: auto;
+      bottom: 8px;
+      transform: translateX(-50%) translateY(16px) scale(.85);
+    }
+    .ask.show {
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+
   .ask h2 {
     font-size: 1.1rem;
     font-weight: 800;
@@ -938,6 +949,7 @@
 </div>
 
   <div class="butterfly" id="butterfly">
+    <span class="name">Glenny</span>
     <div class="wings">
       <div class="wing hw l"></div>
       <div class="wing hw r"></div>
@@ -977,31 +989,20 @@
   }
 
   const BF_GAP = 56;
-  const BF_SPAN = 227;
-
-  function layout() {
-    const vw = window.innerWidth;
-    const c = cake.getBoundingClientRect();
-    const gsRaw = getComputedStyle(document.body).getPropertyValue('--gs').trim();
-    const gs = gsRaw ? parseFloat(gsRaw) : 1;
-    const pairW = c.width + BF_GAP + BF_SPAN * gs;
-    let d = pairW / 2 - c.width / 2;
-    if (pairW > vw - 16) d = Math.max(0, d - (pairW - (vw - 16)) / 2);
-    stage.style.marginLeft = (-2 * d) + 'px';
-  }
-
-  layout();
-  window.addEventListener('resize', layout);
+  const BF_VIS_HALF = 118;
 
   function homeSpot() {
     const c = cake.getBoundingClientRect();
     const vw = window.innerWidth;
     const gsRaw = getComputedStyle(document.body).getPropertyValue('--gs').trim();
     const gs = gsRaw ? parseFloat(gsRaw) : 1;
-    const halfSpan = 108 * gs;
-    const room = vw - c.width - halfSpan * 2;
-    const gap = room > 70 ? BF_GAP : Math.max(20, room * 0.32);
-    return { x: c.left + c.width + gap + halfSpan, y: c.top + c.height * 0.5, facing: -6 };
+    const halfSpan = BF_VIS_HALF * gs;
+    const room = vw - c.right - 16;
+    const gap = Math.max(8, Math.min(BF_GAP, room - halfSpan - 8));
+    let x = c.right + gap + halfSpan;
+    const rightLimit = vw - 10 - halfSpan;
+    if (x > rightLimit) x = Math.max(c.left + halfSpan, rightLimit);
+    return { x: x, y: c.top - 18, facing: -6 };
   }
 
   function corners() {
@@ -1216,7 +1217,6 @@
   async function summon() {
     roaming = true;
     landed = false;
-    layout();
 
     const h = homeSpot();
     butterfly.style.setProperty('--x', h.x + 'px');
